@@ -12,6 +12,10 @@ import torchvision.transforms as transforms
 
 import os
 import argparse
+import requests
+from PIL import Image
+import io
+from torch.autograd import Variable
 
 from models import *
 from utils import progress_bar
@@ -38,6 +42,12 @@ transform_train = transforms.Compose([
 transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+])
+
+preprocess = transforms.Compose([
+    transforms.Scale(32),
+    transforms.ToTensor(),
+    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
 ])
 
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
@@ -125,7 +135,22 @@ def test(epoch):
         torch.save(state, './checkpoint/ckpt.t7')
         best_acc = acc
 
+def predict():
+    IMG_URL = 'https://www.telegraph.co.uk/content/dam/Travel/2018/January/white-plane-sky.jpg'
+    response = requests.get(IMG_URL)
+    img_pil = Image.open(io.BytesIO(response.content))
+    image_tensor = preprocess(img_pil)
+    print(image_tensor.size())
+    image_tensor = image_tensor.unsqueeze_(0)
+    input = Variable(image_tensor)
+    input = input.to(device)
+    output = net(input)
+    index = output.data.numpy().argmax()
 
-for epoch in range(start_epoch, start_epoch+200):
-    train(epoch)
-    test(epoch)
+    return index
+
+
+print(classes[predict()])
+# for epoch in range(start_epoch, start_epoch+200):
+#     train(epoch)
+#     test(epoch)
