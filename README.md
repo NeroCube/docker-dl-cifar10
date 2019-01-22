@@ -1,4 +1,4 @@
-# docker-ml
+# Docker-DL-Cifar10
 A Machine Learning service in a Docker
 
 ## Run service
