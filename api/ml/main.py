@@ -13,7 +13,8 @@ import torchvision.transforms as transforms
 import os
 import argparse
 
-from dpn import *
+# from dpn import *
+from preact_resnet import *
 from utils import progress_bar
 
 
@@ -51,7 +52,8 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 # Model
 print('==> Building model..')
 
-net = DPN92()
+# net = DPN92()
+net = PreActResNet18()
 
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
