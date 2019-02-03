@@ -14,7 +14,9 @@ import os
 import argparse
 
 # from dpn import *
-from preact_resnet import *
+# from preact_resnet import *
+from densenet import *
+
 from utils import progress_bar
 
 
@@ -53,7 +55,8 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 print('==> Building model..')
 
 # net = DPN92()
-net = PreActResNet18()
+# net = PreActResNet18()
+net = DenseNet121()
 
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
