@@ -4,6 +4,8 @@ import os
 import torchvision.transforms as transforms
 
 from ml.dpn import *
+from ml.preact_resnet import *
+from ml.densenet import *
 from PIL import Image
 from torch.autograd import Variable
 
@@ -19,14 +21,23 @@ preprocess = transforms.Compose([
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 net = DPN92()
+net2 = PreActResNet18()
+net3 = DenseNet121()
+
 
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
     cudnn.benchmark = True
 
 assert os.path.isdir('ml/checkpoint'), 'Error: no checkpoint directory found!'
-checkpoint = torch.load('./ml/checkpoint/ckpt.t7')
+# checkpoint = torch.load('./ml/checkpoint/ckpt.t7')
+# net.load_state_dict(checkpoint['net'])
+checkpoint = torch.load('./ml/checkpoint/dpn_ckpt.t7')
 net.load_state_dict(checkpoint['net'])
+checkpoint = torch.load('./ml/checkpoint/preact_resnet_ckpt.t7')
+net2.load_state_dict(checkpoint['net'])
+checkpoint = torch.load('./ml/checkpoint/ckpt.t7')
+net3.load_state_dict(checkpoint['net'])
 
 
 
@@ -36,8 +47,13 @@ def predict(image):
     print(image_tensor.size())
     image_tensor = image_tensor.unsqueeze_(0)
     input = Variable(image_tensor)
+
     output = net(input)
-    index = output.data.numpy().argmax()
+    output2 = net2(input)
+    output3 = net3(input)
+
+    result = output.data.numpy()+output2.data.numpy()+output3.data.numpy()
+    index = result.argmax()
 
     return classes[index]
 
